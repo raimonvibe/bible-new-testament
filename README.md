@@ -1,6 +1,10 @@
+[![New Testament Reader](bible.png)](https://bible-new-testament.vercel.app/)
+
 # New Testament Reader
 
 A beautiful, modern web application for reading the entire New Testament, built with Next.js, TypeScript, and Tailwind CSS.
+
+🔗 **Live Demo**: [https://bible-new-testament.vercel.app/](https://bible-new-testament.vercel.app/)
 
 ## Features
 
