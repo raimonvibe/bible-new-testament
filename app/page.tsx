@@ -45,7 +45,7 @@ export default function Home() {
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <BookMarked className="w-16 h-16 text-beige-600 mx-auto mb-4 animate-pulse" />
-          <p className="text-beige-700 font-sans text-lg">Loading the New Testament...</p>
+          <p className="text-beige-700 font-sans text-lg">Loading the Bible...</p>
         </div>
       </main>
     )
@@ -82,18 +82,38 @@ export default function Home() {
   }
 
   const handlePrevChapter = () => {
-    if (!selectedBook || !selectedChapterId) return
-    const currentIndex = selectedBook.chapters.findIndex((c) => c.id === selectedChapterId)
-    if (currentIndex > 0) {
-      setSelectedChapterId(selectedBook.chapters[currentIndex - 1].id)
+    if (!selectedBook || !selectedChapterId || !bibleData) return
+    const currentChapterIndex = selectedBook.chapters.findIndex((c) => c.id === selectedChapterId)
+
+    if (currentChapterIndex > 0) {
+      // Go to previous chapter in same book
+      setSelectedChapterId(selectedBook.chapters[currentChapterIndex - 1].id)
+    } else {
+      // Go to last chapter of previous book
+      const currentBookIndex = bibleData.books.findIndex((b) => b.id === selectedBook.id)
+      if (currentBookIndex > 0) {
+        const prevBook = bibleData.books[currentBookIndex - 1]
+        setSelectedBookId(prevBook.id)
+        setSelectedChapterId(prevBook.chapters[prevBook.chapters.length - 1].id)
+      }
     }
   }
 
   const handleNextChapter = () => {
-    if (!selectedBook || !selectedChapterId) return
-    const currentIndex = selectedBook.chapters.findIndex((c) => c.id === selectedChapterId)
-    if (currentIndex < selectedBook.chapters.length - 1) {
-      setSelectedChapterId(selectedBook.chapters[currentIndex + 1].id)
+    if (!selectedBook || !selectedChapterId || !bibleData) return
+    const currentChapterIndex = selectedBook.chapters.findIndex((c) => c.id === selectedChapterId)
+
+    if (currentChapterIndex < selectedBook.chapters.length - 1) {
+      // Go to next chapter in same book
+      setSelectedChapterId(selectedBook.chapters[currentChapterIndex + 1].id)
+    } else {
+      // Go to first chapter of next book
+      const currentBookIndex = bibleData.books.findIndex((b) => b.id === selectedBook.id)
+      if (currentBookIndex < bibleData.books.length - 1) {
+        const nextBook = bibleData.books[currentBookIndex + 1]
+        setSelectedBookId(nextBook.id)
+        setSelectedChapterId(nextBook.chapters[0].id)
+      }
     }
   }
 
@@ -102,10 +122,19 @@ export default function Home() {
     return selectedBook.chapters.findIndex((c) => c.id === selectedChapterId)
   }
 
-  const hasPrev = getCurrentChapterIndex() > 0
-  const hasNext = Boolean(
-    selectedBook && getCurrentChapterIndex() < selectedBook.chapters.length - 1
-  )
+  const hasPrev = (() => {
+    if (!selectedBook || !bibleData) return false
+    const currentChapterIndex = getCurrentChapterIndex()
+    const currentBookIndex = bibleData.books.findIndex((b) => b.id === selectedBook.id)
+    return currentChapterIndex > 0 || currentBookIndex > 0
+  })()
+
+  const hasNext = (() => {
+    if (!selectedBook || !bibleData) return false
+    const currentChapterIndex = getCurrentChapterIndex()
+    const currentBookIndex = bibleData.books.findIndex((b) => b.id === selectedBook.id)
+    return currentChapterIndex < selectedBook.chapters.length - 1 || currentBookIndex < bibleData.books.length - 1
+  })()
 
   return (
     <main className="min-h-screen py-6 md:py-10 px-4 md:px-6 lg:px-8">
@@ -116,10 +145,10 @@ export default function Home() {
             <BookMarked className="w-10 h-10 md:w-12 md:h-12 text-beige-700" />
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-beige-800 mb-3">
-            New Testament
+            The Holy Bible
           </h1>
           <p className="text-beige-600 font-sans text-base md:text-lg max-w-2xl mx-auto">
-            Read the complete New Testament from the {bibleData.bibleName} in a beautiful,
+            Read the complete Old and New Testament from the {bibleData.bibleName} in a beautiful,
             modern interface
           </p>
         </header>
@@ -149,6 +178,7 @@ export default function Home() {
               bookName={selectedBook.name}
               chapter={selectedChapter}
               onBack={handleBackToChapters}
+              onBackToBooks={handleBackToBooks}
               onPrevChapter={handlePrevChapter}
               onNextChapter={handleNextChapter}
               hasPrev={hasPrev}

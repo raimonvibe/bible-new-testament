@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { ChevronLeft, ChevronRight, ArrowLeft, Eye, EyeOff } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ArrowLeft, Eye, EyeOff, Home } from 'lucide-react'
 
 interface Chapter {
   id: string
@@ -18,6 +18,7 @@ interface BibleReaderProps {
   onNextChapter?: () => void
   hasPrev: boolean
   hasNext: boolean
+  onBackToBooks?: () => void
 }
 
 export default function BibleReader({
@@ -28,6 +29,7 @@ export default function BibleReader({
   onNextChapter,
   hasPrev,
   hasNext,
+  onBackToBooks,
 }: BibleReaderProps) {
   const [showVerseNumbers, setShowVerseNumbers] = useState(true)
 
@@ -47,31 +49,87 @@ export default function BibleReader({
 
   return (
     <div className="bg-beige-100/80 backdrop-blur-sm rounded-2xl shadow-xl p-4 md:p-6 lg:p-10">
-      <div className="flex items-center justify-between mb-6">
+      {/* Breadcrumb Navigation */}
+      <nav className="flex items-center gap-2 text-sm text-beige-600 mb-4 font-sans" aria-label="Breadcrumb">
+        <button
+          onClick={onBackToBooks}
+          className="hover:text-beige-900 transition-colors flex items-center gap-1"
+          aria-label="Go to home"
+        >
+          <Home className="w-4 h-4" />
+          <span className="hidden sm:inline">Home</span>
+        </button>
+        <span>/</span>
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-beige-700 hover:text-beige-900 transition-colors group"
+          className="hover:text-beige-900 transition-colors"
           aria-label="Go back to chapter list"
         >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          <span className="font-sans text-sm md:text-base">Back to Chapters</span>
+          {bookName}
         </button>
+        <span>/</span>
+        <span className="text-beige-800 font-medium">Chapter {chapter.number}</span>
+      </nav>
+
+      {/* Action Bar */}
+      <div className="flex items-center justify-between mb-6 pb-4 border-b border-beige-300">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onPrevChapter}
+            disabled={!hasPrev}
+            aria-label="Go to previous chapter"
+            className={`
+              p-2 rounded-lg transition-all
+              ${
+                hasPrev
+                  ? 'bg-white/70 hover:bg-white text-beige-800 hover:shadow-md'
+                  : 'bg-beige-200/50 text-beige-400 cursor-not-allowed'
+              }
+            `}
+          >
+            <ChevronLeft className="w-5 h-5" aria-hidden="true" />
+          </button>
+
+          <button
+            onClick={onNextChapter}
+            disabled={!hasNext}
+            aria-label="Go to next chapter"
+            className={`
+              p-2 rounded-lg transition-all
+              ${
+                hasNext
+                  ? 'bg-white/70 hover:bg-white text-beige-800 hover:shadow-md'
+                  : 'bg-beige-200/50 text-beige-400 cursor-not-allowed'
+              }
+            `}
+          >
+            <ChevronRight className="w-5 h-5" aria-hidden="true" />
+          </button>
+
+          <button
+            onClick={onBack}
+            className="ml-2 flex items-center gap-2 px-3 py-2 bg-white/70 hover:bg-white text-beige-800 rounded-lg transition-all hover:shadow-md font-sans text-sm"
+            aria-label="Select different chapter"
+          >
+            <span>Ch. {chapter.number}</span>
+          </button>
+        </div>
 
         <button
           onClick={() => setShowVerseNumbers(!showVerseNumbers)}
-          className="flex items-center gap-2 px-3 py-2 bg-white/70 hover:bg-white text-beige-800 rounded-xl transition-all hover:shadow-lg font-sans text-sm md:text-base"
+          className="flex items-center gap-2 px-3 py-2 bg-white/70 hover:bg-white text-beige-800 rounded-lg transition-all hover:shadow-md font-sans text-sm"
           aria-label={showVerseNumbers ? 'Hide verse numbers' : 'Show verse numbers'}
           aria-pressed={showVerseNumbers}
         >
           {showVerseNumbers ? (
             <>
-              <EyeOff className="w-5 h-5" aria-hidden="true" />
-              <span className="hidden sm:inline">Hide Verse Numbers</span>
+              <EyeOff className="w-4 h-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Hide Numbers</span>
             </>
           ) : (
             <>
-              <Eye className="w-5 h-5" aria-hidden="true" />
-              <span className="hidden sm:inline">Show Verse Numbers</span>
+              <Eye className="w-4 h-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Show Numbers</span>
             </>
           )}
         </button>
