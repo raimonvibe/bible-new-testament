@@ -103,8 +103,9 @@ export default function Home() {
   }
 
   const hasPrev = getCurrentChapterIndex() > 0
-  const hasNext =
+  const hasNext = Boolean(
     selectedBook && getCurrentChapterIndex() < selectedBook.chapters.length - 1
+  )
 
   return (
     <main className="min-h-screen py-6 md:py-10 px-4 md:px-6 lg:px-8">
